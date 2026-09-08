@@ -1,0 +1,4 @@
+wwwroot\index.html
+wwwroot\favicon.ico
+C:\Users\Daniel\source\repos\ZadanieRekrutacyjne\ZadanieRekrutacyjne\wwwroot\index.html
+C:\Users\Daniel\source\repos\ZadanieRekrutacyjne\ZadanieRekrutacyjne\wwwroot\favicon.ico

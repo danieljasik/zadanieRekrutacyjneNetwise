@@ -1,0 +1,50 @@
+﻿using ZadanieRekrutacyjne;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Register a typed HttpClient: the framework creates and manages the HttpClient
+// instance (via IHttpClientFactory under the hood) and injects it into FactService.
+builder.Services.AddHttpClient<IFactService, FactService>(client =>
+{
+    client.BaseAddress = new Uri("https://catfact.ninja/");
+});
+
+var app = builder.Build();
+
+//Deleting the txt file to start from new one each session
+using (var scope = app.Services.CreateScope())
+{
+    var factService = scope.ServiceProvider.GetRequiredService<IFactService>();
+    factService.Reset();
+}
+
+// Serve the button page (wwwroot/index.html) as the home page
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+// IFactService is resolved from DI and injected straight into the endpoint delegate.
+app.MapGet("/fetch-fact", async (IFactService factService) =>
+{
+    try
+    {
+        var result = await factService.FetchAndSaveFactAsync();
+        return Results.Ok(new
+        {
+            message = "Fact fetched and saved.",
+            savedTo = result.SavedTo,
+            fact = result.Fact
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message);
+    }
+});
+
+app.MapGet("/facts", async (IFactService factService) =>
+{
+    var facts = await factService.GetSavedFactsAsync();
+    return Results.Ok(facts);
+});
+
+app.Run();

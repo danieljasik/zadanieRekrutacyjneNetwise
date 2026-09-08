@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fact App</title>
+  <style>
+	body {
+	  font-family: system-ui, sans-serif;
+	  max-width: 600px;
+	  margin: 60px auto;
+	  text-align: center;
+	  color: #222;
+	}
+	button {
+	  font-size: 1.1rem;
+	  padding: 12px 24px;
+	  border: none;
+	  border-radius: 8px;
+	  background: #2d6cdf;
+	  color: white;
+	  cursor: pointer;
+	}
+	button:disabled {
+	  background: #9db6e8;
+	  cursor: default;
+	}
+	#status {
+	  margin-top: 10px;
+	  color: #666;
+	  font-size: 0.9rem;
+	}
+	h2 {
+	  margin-top: 40px;
+	  text-align: left;
+	  font-size: 1.1rem;
+	}
+	#facts {
+	  text-align: left;
+	  padding: 16px;
+	  border-radius: 8px;
+	  background: #f4f6fb;
+	  min-height: 40px;
+	  max-height: 400px;
+	  overflow-y: auto;
+	}
+	#facts ul {
+	  margin: 0;
+	  padding-left: 20px;
+	}
+	#facts li {
+	  margin-bottom: 8px;
+	  line-height: 1.4;
+	}
+	#facts .empty {
+	  color: #888;
+	  font-style: italic;
+	}
+  </style>
+</head>
+<body>
+  <h1>🐱 Fact App</h1>
+  <p>Click the button to fetch a new cat fact and save it to <code>facts.txt</code>.</p>
+
+  <button id="fetchBtn">Get Cat Fact</button>
+  <div id="status"></div>
+
+  <h2>Saved facts</h2>
+  <div id="facts"><p class="empty">Loading...</p></div>
+
+  <script>
+	const btn = document.getElementById('fetchBtn');
+	const status = document.getElementById('status');
+	const factsDiv = document.getElementById('facts');
+
+	async function loadFacts() {
+	  try {
+		const response = await fetch('/facts');
+		const facts = await response.json();
+
+		if (facts.length === 0) {
+		  factsDiv.innerHTML = '<p class="empty">No facts saved yet.</p>';
+		  return;
+		}
+
+		const items = facts
+		  .slice()
+		  .reverse() // show newest first
+		  .map(line => `<li>${line}</li>`)
+		  .join('');
+		factsDiv.innerHTML = `<ul>${items}</ul>`;
+	  } catch (err) {
+		factsDiv.innerHTML = '<p class="empty">Could not load saved facts.</p>';
+	  }
+	}
+
+	btn.addEventListener('click', async () => {
+	  btn.disabled = true;
+	  status.textContent = 'Fetching...';
+
+	  try {
+		const response = await fetch('/fetch-fact');
+		if (!response.ok) {
+		  throw new Error(`Request failed with status ${response.status}`);
+		}
+		await response.json();
+		status.textContent = 'Fact saved.';
+		await loadFacts();
+	  } catch (err) {
+		status.textContent = 'Error fetching fact.';
+	  } finally {
+		btn.disabled = false;
+	  }
+	});
+
+	// Load whatever's already saved when the page opens
+	loadFacts();
+  </script>
+</body>
+</html>
