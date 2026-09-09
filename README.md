@@ -1,2 +1,2 @@
 # Readme
-Opis uruchomienia oraz krótki opis działania znajdują się w pliku read.me w folderze projektu ZadanieRekrutacyjne
+Opis uruchomienia oraz krótki opis działania znajdują się w pliku readme.md w folderze projektu ZadanieRekrutacyjne
